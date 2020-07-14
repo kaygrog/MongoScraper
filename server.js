@@ -37,12 +37,21 @@ app.get("/", function (req, res) {
   res.json(path.join(__dirname, "public/index.html"));
 });
 
+// Get articles from MongoDB
 app.get("/articles", function (req, res) {
+  db.Article.find({})
+    .then(function (dbArticle) {
+      res.json(dbArticle);
+    })
+    .catch(function (err) {
+      res.json(err);
+    });
+});
+
+// Scrape articles from Reuters
+app.get("/scrape", function (req, res) {
   axios.get("https://www.reuters.com/").then(function (response) {
     var $ = cheerio.load(response.data);
-
-    // TODO: Change below to creating an Article (model) rather than pushing to an array
-    var results = [];
 
     $("h2.story-title").each(function (i, element) {
       getArticleData(element);
@@ -53,6 +62,8 @@ app.get("/articles", function (req, res) {
     });
 
     function getArticleData(element) {
+      var result = {};
+
       var title = $(element).text().trim();
       var link = $(element).parent().attr("href");
 
@@ -62,13 +73,34 @@ app.get("/articles", function (req, res) {
         link = $(element).children().attr("href");
       }
 
-      if (title !== "") {
-        results.push({ title: title, link: link });
+      if (title !== "" && link) {
+        result.title = title;
+        result.link = link;
+
+        db.Article.create(result)
+          .then(function (dbArticle) {
+            console.log(dbArticle);
+          })
+          .catch(function (err) {
+            console.log(err);
+          });
       }
     }
 
-    res.json(results);
+    res.send("Scrape completed!");
   });
+});
+
+app.delete("/clear", function (req, res) {
+  db.Article.deleteMany({})
+    .then(function (dbArticle) {
+      console.log(dbArticle);
+      res.send("Articles cleared!");
+    })
+    .catch(function (err) {
+      console.log(err);
+      res.send("An error occurred while clearing the articles.");
+    });
 });
 
 // Start the server
