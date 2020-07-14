@@ -56,6 +56,8 @@ app.get("/articles", function (req, res) {
       var title = $(element).text().trim();
       var link = $(element).parent().attr("href");
 
+      // Reuters has some links as parents and some as children of the story-title header
+      // If the link is undefined when trying to grab from the header's parent, try to grab from the header's children
       if (!link) {
         link = $(element).children().attr("href");
       }

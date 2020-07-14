@@ -5,7 +5,9 @@ $("#scrape-articles").on("click", function (event) {
     // Display the articles on the page
     console.log(data);
     data.forEach((e) => {
-      $("#articles").append(e.title);
+      var article = $("<div class='article'>");
+      article.append(e.title);
+      $("#articles").append(article);
     });
   });
 });
