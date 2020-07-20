@@ -30,14 +30,21 @@ function getArticles() {
       articleDiv.append(article);
 
       if (getSaved) {
-        // Create delete from saved button for each earticle
+        // Create "Delete from saved" button for each earticle
         var deleteButton = $(
           `<button class='delete-button' data-id=${e._id}>Delete from saved</button>`
         );
+
+        // Create "Article notes" button for each article
+        var notesButton = $(
+          `<button type='button' class='btn btn-primary notes-button' data-toggle='modal' data-target='#articleNotes' data-id=${e._id}>Article notes</button>`
+        );
+
         articleDiv.append(deleteButton);
+        articleDiv.append(notesButton);
         $("#saved-articles").append(articleDiv);
       } else {
-        // Create save button for each article
+        // Create "Save article" button for each article
         var saveButton = $(
           `<button class='save-button' data-id=${e._id}>Save article</button>`
         );
@@ -92,6 +99,32 @@ $(document).on("click", ".delete-button", function (event) {
   }).then(function (data) {
     console.log(data);
     getArticles();
+  });
+});
+
+$(document).on("click", ".notes-button", function (event) {
+  event.preventDefault();
+
+  $(".article-id").empty();
+  $(".modal-footer").empty();
+
+  // TODO: Populate article-notes div with saved notes for that article
+  var articleId = $(this).data("id");
+  $(".article-id").append(articleId);
+  $(".modal-footer").append(
+    `<button data-id="${articleId}" type="button" class="btn btn-primary save-note">Save note</button>`
+  );
+});
+
+$(document).on("click", ".save-note", function (event) {
+  event.preventDefault();
+  console.log("hi");
+  $.ajax({
+    method: "POST",
+    url: `/api/article-notes/${$(this).data("id")}`,
+    data: { body: $("#note-body").val() },
+  }).then(function (data) {
+    console.log(data);
   });
 });
 
