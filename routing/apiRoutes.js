@@ -142,4 +142,16 @@ module.exports = function (app) {
         res.json(err);
       });
   });
+
+  // Get all notes for an article
+  app.get("/api/article-notes/:id", function (req, res) {
+    db.Article.findOne({ _id: req.params.id })
+      .populate("note")
+      .then(function (dbArticle) {
+        res.json(dbArticle);
+      })
+      .catch(function (err) {
+        res.json(err);
+      });
+  });
 };

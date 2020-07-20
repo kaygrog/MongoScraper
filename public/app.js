@@ -106,25 +106,35 @@ $(document).on("click", ".notes-button", function (event) {
   event.preventDefault();
 
   $(".article-id").empty();
+  $(".saved-notes").empty();
+  $(".note-body").val("");
   $(".modal-footer").empty();
 
   // TODO: Populate article-notes div with saved notes for that article
   var articleId = $(this).data("id");
   $(".article-id").append(articleId);
   $(".modal-footer").append(
-    `<button data-id="${articleId}" type="button" class="btn btn-primary save-note">Save note</button>`
+    `<button data-id="${articleId}" type="button" class="btn btn-primary save-note" data-dismiss="modal">Save note</button>`
   );
+
+  $.ajax({
+    method: "GET",
+    url: `/api/article-notes/${articleId}`,
+  }).then(function (data) {
+    if (data.note) {
+      $(".saved-notes").append(data.note.body);
+    }
+  });
 });
 
 $(document).on("click", ".save-note", function (event) {
   event.preventDefault();
-  console.log("hi");
   $.ajax({
     method: "POST",
     url: `/api/article-notes/${$(this).data("id")}`,
-    data: { body: $("#note-body").val() },
+    data: { body: $(".note-body").val() },
   }).then(function (data) {
-    console.log(data);
+    console.log(data.note);
   });
 });
 
